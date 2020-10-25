@@ -1,43 +1,61 @@
 <?php
+
 namespace App\Services\Action;
 
-use App\Models\User;
+use Carbon\Carbon;
 use App\Models\Advert;
-use App\Mail\MailUpdateAdv;
-use App\Services\Action\Parse;
-use App\Services\Action\Mailing;
 use App\Services\Action\RecordUser;
 use App\Services\Action\RecordAdvert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpClient\HttpClient;
+
+/**
+ * Class Process
+ * @package App\Services\Action
+ */
 class Process
 {
-    public function init(){
-       try{
-            Advert::chunk(200, function($adverts){
-                    foreach ($adverts as $advert)
-                    {
+    /**
+     * @throws \Exception for bad situation
+     */
+    public function init()
+    {
+        try {
+            if (Advert::orderBy('id')->where('status', '=', 'wait_update')->count() == 0) {
+                $adverts = Advert::all();
+                foreach ($adverts as $advert) {
+                    $advert->status = 'wait_update';
+                    $advert->save();
+                }
+            }
+            Advert::orderBy('id')->where('status', '=', 'wait_update')->chunk(
+                20,
+                function ($adverts) {
+                    foreach ($adverts as $advert) {
                         $parse = new Parse($advert->url);
                         $parse->setParseClass('.js-item-price');
-                        if($advert->price === null){
-                            $advert->price = $parse->init();
+                        $newPrice = $parse->parseElement();
+                        if ($newPrice != $advert->price) {
+                            $advert->price = $newPrice;
+                            $mailer = new Mailing(
+                                array(
+                                    'price' => $newPrice,
+                                    'id' => $advert->id,
+                                    'url' => $advert->url,
+                                    'adv' => $advert->advCode
+                                )
+                            );
+                            //$mailer->init();
+                            $advert->updated_at = Carbon::now()->timestamp;
+                            $advert->status = 'update';
                             $advert->save();
                         }
-                        else{
-                            $newPrice  = $parse->init();
-                            if($newPrice != $advert->price){
-                                $advert->price = $newPrice;
-                                $advert->save();
-                                $mailer = new Mailing(array('price'=>$newPrice,'id'=>$advert->id,'url'=>$advert->url,'adv'=>$advert->advCode));
-                                $mailer->init();
-                            }
-                        }
                     }
-                });
-        }
-        catch(\Exception $e){
-             throw new \Exception('Fail Parsing');
+                }
+            );
+        } catch (\Exception $e) {
+            throw new \Exception('Fail Parsing');
         }
     }
 }

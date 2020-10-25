@@ -1,28 +1,51 @@
 <?php
+
 namespace App\Services\Action;
 
+use App\Models\Advert;
 use Illuminate\Support\Facades\Mail;
 use DB;
 use App\Mail\MailUpdateAdv;
-use App\Models\Users;
+
+
+/**
+ * Class Mailing
+ *
+ * @package App\Services\Action
+ */
 class Mailing
 {
     private $advInfo = [];
-    public function __construct(array $advInfo){
+
+    /**
+     * Mailing constructor.
+     * @param array $advInfo
+     */
+    public function __construct(array $advInfo)
+    {
         $this->advInfo = $advInfo;
     }
 
+    public function init()
+    {
+        $users = Advert::find($this->advInfo['id']);
+        $users = $users->users;
 
-    public function init(){
-        $listEmails = [];
-        $users = DB::table('users')->whereJsonContains('advertIds', [$this->advInfo['id']])->get();
-        if($users->count() > 0) {
+        if ($users->count() > 0) {
             foreach ($users as $key => $value) {
                 $this->sendEmail($value->email);
             }
         }
     }
-    private function sendEmail($email){
+
+    /**
+     * Send email to user
+     *
+     * @param $email
+     *
+     */
+    private function sendEmail($email)
+    {
         $data = [
             'adv' => $this->advInfo['adv'],
             'price' => $this->advInfo['price'],

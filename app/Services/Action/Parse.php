@@ -1,30 +1,54 @@
 <?php
+
 namespace App\Services\Action;
 
 use App\Models\Advert;
 use voku\helper\HtmlDomParser;
+
+/**
+ * Class Parse
+ * @package App\Services\Action
+ */
 class Parse
 {
     private $url;
     private $class = "";
 
-    public function __construct(string $url){
+    /**
+     * Parse constructor.
+     * @param string $url
+     */
+    public function __construct(string $url)
+    {
         $this->url = $url;
     }
 
-    public function setParseClass($class){
+    /**
+     * set final class for parse in HtmlDom
+     *
+     * @param $class
+     */
+    public function setParseClass($class)
+    {
         $this->class = $class;
     }
 
-    public function getParseClass(){
+    /**
+     * @return string
+     */
+    public function getParseClass()
+    {
         return $this->class;
     }
 
-    public function init(){
-       return $this->parsePrice();
-    }
 
-    private function parsePrice(){
+    /**
+     * Parse HtmlDom by url from construct method
+     *
+     * @return float|null
+     */
+    public function parseElement()
+    {
         try {
             $dom = HtmlDomParser::file_get_html($this->url);
             $elements = $dom->findMulti($this->class)->text();
