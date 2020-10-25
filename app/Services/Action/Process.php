@@ -46,7 +46,7 @@ class Process
                                     'adv' => $advert->advCode
                                 )
                             );
-                            //$mailer->init();
+                            $mailer->init();
                             $advert->updated_at = Carbon::now()->timestamp;
                             $advert->status = 'update';
                             $advert->save();

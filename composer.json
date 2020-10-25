@@ -15,7 +15,8 @@
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
         "voku/simple_html_dom": "^4.7",
-        "weidner/goutte": "^2.0"
+        "weidner/goutte": "^2.0",
+        "nesbot/carbon": "^2.16"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",
