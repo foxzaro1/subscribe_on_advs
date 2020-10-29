@@ -9,14 +9,15 @@
     "license": "MIT",
     "require": {
         "php": "^7.3",
+        "doctrine/dbal": "^2.12",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
+        "nesbot/carbon": "^2.16",
         "voku/simple_html_dom": "^4.7",
-        "weidner/goutte": "^2.0",
-        "nesbot/carbon": "^2.16"
+        "weidner/goutte": "^2.0"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",

@@ -9,20 +9,23 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ProcessSendingEmail implements ShouldQueue
+class VerifySendingEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
 
     /**
      *
      */
-    public $arr = [];
+    private $arr = [];
 
     /**
      * Create a new job instance.
      *
-     * @param array $arr
+     * @return void
      */
     public function __construct(Array $arr)
     {
@@ -37,6 +40,6 @@ class ProcessSendingEmail implements ShouldQueue
     public function handle()
     {
         $mailing = new Mailing($this->arr);
-        $mailing->sendEmailAdvUpdated($this->arr);
+        $mailing->sendEmailVerifyCode($this->arr);
     }
 }

@@ -3,11 +3,10 @@
 namespace App\Services\Action;
 
 use App\Jobs\ProcessSendingEmail;
+use App\Mail\MailConfirmEmail;
+use App\Mail\MailUpdateAdv;
 use App\Models\Advert;
 use Illuminate\Support\Facades\Mail;
-use DB;
-use App\Mail\MailUpdateAdv;
-
 
 /**
  * Class Mailing
@@ -33,20 +32,22 @@ class Mailing
         $users = $users->users;
         if ($users->count() > 0) {
             foreach ($users as $key => $value) {
-                $this->advInfo['email'] = $value->email;
-                $job = (new ProcessSendingEmail($this->advInfo))->delay(120);
-                dispatch($job);
+                if ($value->active) {
+                    $this->advInfo['email'] = $value->email;
+                    $job = (new ProcessSendingEmail($this->advInfo))->delay(120);
+                    dispatch($job);
+                }
             }
         }
     }
 
     /**
-     * Send email to user
+     * Send email to user, update price advert
      *
      * @param $email
      *
      */
-    public function sendEmailJobs($arr)
+    public function sendEmailAdvUpdated($arr)
     {
         $data = [
             'adv' => $arr['adv'],
@@ -57,14 +58,18 @@ class Mailing
         Mail::to($data['email'])->send(new MailUpdateAdv($data));
     }
 
-    private function sendEmail($email)
+    /**
+     * Send email to user, verify account
+     *
+     * @param $arr
+     */
+    public function sendEmailVerifyCode($arr)
     {
         $data = [
-            'adv' => $this->advInfo['adv'],
-            'price' => $this->advInfo['price'],
-            'url' => $this->advInfo['url'],
-            'email' => $email,
+            'email' => $arr['email'],
+            'code' => $arr['code'],
         ];
-        Mail::to($email)->send(new MailUpdateAdv($data));
+        Mail::to($data['email'])->send(new MailConfirmEmail($data));
     }
+
 }

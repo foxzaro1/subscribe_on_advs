@@ -5,6 +5,7 @@ namespace App\Services\Action;
 use App\Helpers\Helper;
 use App\Models\Advert;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 
 /**
@@ -42,12 +43,15 @@ class Record
                 $currentAdvert->save();
             }
             $currentUser = $currentUser->getByEmailOrCreateNew($this->request->email);
+            //fix duplicate in related tables start and added if 0 bills
             $test = $currentAdvert->users()->get();
             foreach ($test as $item) {
                 $idsForAttach[] = $item->id;
             }
-
-            $currentAdvert->users()->attach($currentUser->id);
+            if (empty($idsForAttach) || !in_array($currentUser->id, $idsForAttach)) {
+                $currentAdvert->users()->attach($currentUser->id);
+            }
+            //fix duplicate in related end
         } catch (\Exception $e) {
             throw new \Exception('Fail Record');
         }
