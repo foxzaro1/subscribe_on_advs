@@ -8,7 +8,6 @@ class WebScrapController extends Controller
 {
     public function get_data()
     {
-        $treatment = new Process();
-        $treatment->init();
+        (new Process())->init();
     }
 }

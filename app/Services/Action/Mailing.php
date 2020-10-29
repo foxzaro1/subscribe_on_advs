@@ -34,8 +34,7 @@ class Mailing
             foreach ($users as $key => $value) {
                 if ($value->active) {
                     $this->advInfo['email'] = $value->email;
-                    $job = (new ProcessSendingEmail($this->advInfo))->delay(120);
-                    dispatch($job);
+                    dispatch((new ProcessSendingEmail($this->advInfo))->delay(120));
                 }
             }
         }
